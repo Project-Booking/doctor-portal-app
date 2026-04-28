@@ -2,6 +2,10 @@
 node_modules/
 *.pem
 
+# Duplicate/Backup folders
+doctor-app/
+_OLD_APP_BACKUPS/
+
 # Testing
 coverage/
 .nyc_output/
