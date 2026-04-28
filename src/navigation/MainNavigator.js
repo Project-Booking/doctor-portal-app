@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
+import AdminDashboardScreen from '../screens/AdminDashboardScreen';
 import AppointmentsScreen from '../screens/AppointmentsScreen';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -11,9 +12,10 @@ import MobileScheduleScreen from '../screens/MobileScheduleScreen';
 import BottomTabBar from '../shared-components/BottomTabBar';
 
 export default function MainNavigator() {
-  const [activeTab, setActiveTab] = useState('appointments');
+  const [activeTab, setActiveTab] = useState('admin');
 
   const tabs = [
+    { id: 'admin', label: '🏠 Admin' },
     { id: 'appointments', label: '📋 Appointments' },
     { id: 'schedule', label: '📅 Schedule' },
     { id: 'profile', label: '👤 Profile' },
@@ -26,6 +28,8 @@ export default function MainNavigator() {
 
   const renderScreen = () => {
     switch (activeTab) {
+      case 'admin':
+        return <AdminDashboardScreen />;
       case 'appointments':
         return <AppointmentsScreen />;
       case 'schedule':
@@ -43,7 +47,7 @@ export default function MainNavigator() {
       case 'settings':
         return <SettingsScreen />;
       default:
-        return <AppointmentsScreen />;
+        return <AdminDashboardScreen />;
     }
   };
 
