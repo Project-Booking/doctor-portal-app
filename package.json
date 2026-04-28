@@ -1,0 +1,49 @@
+{
+  "name": "doctor-portal-app",
+  "version": "1.0.0",
+  "description": "Unified Doctor Portal Application - A comprehensive React Native medical app consolidating all doctor management features",
+  "main": "App.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "build:android": "react-native bundle --platform android --dev false --entry-file App.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "build:ios": "react-native bundle --platform ios --dev false --entry-file App.js --bundle-output ios/main.jsbundle --assets-dest ios"
+  },
+  "keywords": [
+    "doctor",
+    "medical",
+    "healthcare",
+    "appointments",
+    "schedule",
+    "react-native"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.72.0",
+    "react-native-paper": "^5.10.0",
+    "@react-navigation/native": "^6.1.0",
+    "@react-navigation/bottom-tabs": "^6.5.0",
+    "@react-native-async-storage/async-storage": "^1.18.0",
+    "react-native-safe-area-context": "^4.7.0",
+    "react-native-screens": "^3.22.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "@babel/preset-react": "^7.22.0",
+    "@react-native/metro-config": "^0.72.0",
+    "babel-jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.44.0",
+    "react-test-renderer": "^18.2.0",
+    "@testing-library/react-native": "^12.0.0",
+    "@testing-library/jest-native": "^5.4.0"
+  }
+}
