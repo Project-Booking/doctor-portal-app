@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SettingsHeader from '@/components/settings/Header';
-import SettingsTabs from '@/components/settings/SettingsTabs';
-import SettingsProfilePanel from '@/components/settings/SettingsProfilePanel';
-import SettingsBookingPanel from '@/components/settings/SettingsBookingPanel';
+import SettingsHeader from '../../components/settings/Header';
+import SettingsTabs from '../../components/settings/SettingsTabs';
+import SettingsProfilePanel from '../../components/settings/SettingsProfilePanel';
+import SettingsBookingPanel from '../../components/settings/SettingsBookingPanel';
 
 export default function SettingsScreen() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -15,7 +15,7 @@ export default function SettingsScreen() {
         <View style={styles.content}>
           <SettingsHeader title="Settings" />
           <SettingsTabs onTabChange={setActiveTab} />
-          
+
           {activeTab === 'profile' && <SettingsProfilePanel />}
           {activeTab === 'booking' && <SettingsBookingPanel />}
           {activeTab === 'notifications' && (
