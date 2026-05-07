@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, Text, FlatList, TouchableOpacity } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CertificationCard from '../components/site/CertificationCard';
 import AddCertificationModal from '../components/site/AddCertificationModal';
+import EducationPanel from '../components/site/EducationPanel';
 
 const initialCertifications = [
   { id: '1', name: 'Medical Council Registration', subtitle: 'Valid until Dec 2025' },
@@ -44,8 +45,12 @@ export default function SiteManagementScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
+          {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Site Management</Text>
+            <View>
+              <Text style={styles.title}>Site Management</Text>
+              <Text style={styles.subtitle}>Manage clinic certifications & details</Text>
+            </View>
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => setModalVisible(true)}
@@ -54,6 +59,7 @@ export default function SiteManagementScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Certifications Section */}
           <Text style={styles.sectionTitle}>Professional Certifications</Text>
 
           <FlatList
@@ -62,6 +68,9 @@ export default function SiteManagementScreen() {
             keyExtractor={(item) => item.id}
             scrollEnabled={false}
           />
+
+          {/* Education Section */}
+          <EducationPanel />
 
           <AddCertificationModal
             visible={modalVisible}
@@ -92,6 +101,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
   },
   addButton: {
     backgroundColor: '#7C3AED',

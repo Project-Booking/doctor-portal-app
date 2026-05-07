@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, TextInput } from 'react-native';
 
 interface SettingsBookingPanelProps {
   onSave?: () => void;

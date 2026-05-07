@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SettingsHeader from '../../components/settings/Header';
-import SettingsTabs from '../../components/settings/SettingsTabs';
-import SettingsProfilePanel from '../../components/settings/SettingsProfilePanel';
-import SettingsBookingPanel from '../../components/settings/SettingsBookingPanel';
+import SettingsHeader from '../components/settings/SettingsHeader';
+import SettingsTabs from '../components/settings/SettingsTabs';
+import SettingsProfilePanel from '../components/settings/SettingsProfilePanel';
+import SettingsBookingPanel from '../components/settings/SettingsBookingPanel';
+import SettingsNotificationPanel from '../components/settings/SettingsNotificationPanel';
 
 export default function SettingsScreen() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -18,11 +19,7 @@ export default function SettingsScreen() {
 
           {activeTab === 'profile' && <SettingsProfilePanel />}
           {activeTab === 'booking' && <SettingsBookingPanel />}
-          {activeTab === 'notifications' && (
-            <View style={styles.placeholder}>
-              <Text style={styles.placeholderText}>Notification Settings</Text>
-            </View>
-          )}
+          {activeTab === 'notifications' && <SettingsNotificationPanel />}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -36,17 +33,5 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-  },
-  placeholder: {
-    backgroundColor: '#FFFFFF',
-    padding: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-  },
-  placeholderText: {
-    fontSize: 16,
-    color: '#666',
   },
 });
