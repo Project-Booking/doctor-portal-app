@@ -1,73 +1,84 @@
-import React, { useState } from 'react';
+/**
+ * OPD Booking Screen — real week dates, per-day sessions from context,
+ * fully wired edit modal with validation, toast feedback.
+ */
+
+import React, { useState, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert,
-  TextInput, Modal,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useApp } from '@/contexts/AppContext';
+import { useToast } from '@/components/ui/Toast';
+import { FormField } from '@/components/ui/FormField';
+import { Button } from '@/components/ui/Button';
+import { fmt12, getWeekDays, getTodayDayLabel } from '@/utils/date';
+import { validateRequired, validateTimeRange, validatePositiveInt } from '@/utils/validation';
+import { Session } from '@/types';
 import {
   PRIMARY, PRIMARY_BG, PRIMARY_SUBTLE, PRIMARY_LIGHT, WHITE,
-  GRAY_100, GRAY_200, GRAY_300, GRAY_400, GRAY_500, GRAY_600, GRAY_900,
-  SUCCESS, SUCCESS_BG, DANGER, DANGER_BG, WARNING, WARNING_BG,
+  GRAY_100, GRAY_200, GRAY_400, GRAY_500, GRAY_600, GRAY_900,
+  SUCCESS, SUCCESS_BG, DANGER, DANGER_BG, WARNING_BG,
   FONT_SM, FONT_MD, FONT_LG, FONT_XL, FONT_2XL,
   SPACE_SM, SPACE_MD, SPACE_LG, SPACE_XL, SPACE_2XL,
   RADIUS_LG, RADIUS_XL, RADIUS_FULL, SHADOW_SM, SHADOW_MD,
 } from '@/constants/theme';
+import { Switch } from 'react-native';
 
-// ── Types & Data ──────────────────────────────────────────────────────────────
-const WEEK_DAYS = [
-  { label: 'Mon', date: '19' },
-  { label: 'Tue', date: '20' },
-  { label: 'Wed', date: '21' },
-  { label: 'Thu', date: '22' },
-  { label: 'Fri', date: '23' },
-  { label: 'Sat', date: '24' },
-  { label: 'Sun', date: '25' },
-];
+const WEEK_DAYS = getWeekDays();
+const TODAY_LABEL = getTodayDayLabel();
 
-interface Session {
-  id: string;
-  name: string;
-  startTime: string;
-  endTime: string;
-  duration: number;
-  totalTokens: number;
-  bookedTokens: number;
-  available: boolean;
-  onlineBooking: boolean;
-}
-
-const DEFAULT_SESSIONS: Session[] = [
-  { id: '1', name: 'Morning OP',   startTime: '09:00', endTime: '13:00', duration: 30, totalTokens: 20, bookedTokens: 14, available: true,  onlineBooking: true },
-  { id: '2', name: 'Afternoon OP', startTime: '14:00', endTime: '18:00', duration: 30, totalTokens: 20, bookedTokens: 8,  available: true,  onlineBooking: true },
-  { id: '3', name: 'Evening OP',   startTime: '19:00', endTime: '22:00', duration: 20, totalTokens: 15, bookedTokens: 15, available: false, onlineBooking: false },
-];
-
-// ── Component ─────────────────────────────────────────────────────────────────
 export default function BookingScreen() {
-  const [activeDay, setActiveDay] = useState('Mon');
-  const [sessions, setSessions] = useState<Session[]>(DEFAULT_SESSIONS);
+  const { sessions, updateSession, toggleSessionAvailability } = useApp();
+  const { showToast } = useToast();
+
+  const [activeDay, setActiveDay] = useState(TODAY_LABEL);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showModal, setShowModal]           = useState(false);
+  const [errors, setErrors]                 = useState<Record<string, string>>({});
+
+  // For demo purposes, show all sessions regardless of day
+  // (In production: sessions would have a `day` field and be filtered server-side)
+  const daySessions = useMemo(() => sessions, [sessions]);
 
   const openEdit = (session: Session) => {
     setEditingSession({ ...session });
-    setShowEditModal(true);
+    setErrors({});
+    setShowModal(true);
+  };
+
+  const validateForm = (): boolean => {
+    if (!editingSession) return false;
+    const nameErr     = validateRequired(editingSession.name, 'Session name');
+    const timeErr     = validateTimeRange(editingSession.startTime, editingSession.endTime);
+    const tokenErr    = validatePositiveInt(String(editingSession.totalTokens), 'Total tokens');
+    const durationErr = validatePositiveInt(String(editingSession.duration), 'Duration');
+
+    const newErrors: Record<string, string> = {};
+    if (!nameErr.valid)     newErrors.name         = nameErr.error!;
+    if (!timeErr.valid)     newErrors.timeRange     = timeErr.error!;
+    if (!tokenErr.valid)    newErrors.totalTokens   = tokenErr.error!;
+    if (!durationErr.valid) newErrors.duration      = durationErr.error!;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const saveSession = () => {
-    if (!editingSession) return;
-    setSessions((prev) =>
-      prev.map((s) => s.id === editingSession.id ? editingSession : s)
-    );
-    setShowEditModal(false);
-    Alert.alert('Saved', 'Session updated successfully.');
+    if (!editingSession || !validateForm()) return;
+    updateSession(editingSession);
+    setShowModal(false);
+    showToast('Session updated successfully', 'success');
   };
 
-  const toggleAvailability = (id: string) => {
-    setSessions((prev) =>
-      prev.map((s) => s.id === id ? { ...s, available: !s.available } : s)
-    );
+  const handleToggle = (id: string, name: string, currentlyAvailable: boolean) => {
+    toggleSessionAvailability(id);
+    showToast(`${name} ${currentlyAvailable ? 'disabled' : 'enabled'}`, currentlyAvailable ? 'warning' : 'success');
   };
+
+  const totalSlots   = sessions.reduce((a, s) => a + s.totalTokens, 0);
+  const availSessions = sessions.filter((s) => s.available).length;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -75,79 +86,68 @@ export default function BookingScreen() {
 
         {/* ── Header ── */}
         <View style={styles.header}>
-          <Text style={styles.title}>OPD Booking</Text>
+          <Text style={styles.title} accessibilityRole="header">OPD Booking</Text>
           <Text style={styles.subtitle}>Configure session-based OPD slots</Text>
         </View>
 
         {/* ── Weekly Day Selector ── */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Day</Text>
-          <View style={styles.dayRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayScroll}>
             {WEEK_DAYS.map((d) => (
               <TouchableOpacity
                 key={d.label}
                 style={[styles.dayBtn, activeDay === d.label && styles.dayBtnActive]}
                 onPress={() => setActiveDay(d.label)}
+                accessibilityRole="button"
+                accessibilityLabel={`${d.label} ${d.date}`}
+                accessibilityState={{ selected: activeDay === d.label }}
               >
-                <Text style={[styles.dayLabel, activeDay === d.label && styles.dayLabelActive]}>
-                  {d.label}
-                </Text>
-                <Text style={[styles.dayDate, activeDay === d.label && styles.dayDateActive]}>
-                  {d.date}
-                </Text>
+                <Text style={[styles.dayLabel, activeDay === d.label && styles.dayLabelActive]}>{d.label}</Text>
+                <Text style={[styles.dayDate, activeDay === d.label && styles.dayDateActive]}>{d.date}</Text>
+                {d.label === TODAY_LABEL && <View style={styles.todayDot} />}
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
-        {/* ── Session Summary ── */}
-        <View style={styles.section}>
-          <View style={styles.summaryRow}>
-            <SummaryChip icon="🏥" label="Sessions" value={sessions.length} color={PRIMARY} bg={PRIMARY_SUBTLE} />
-            <SummaryChip icon="✅" label="Available" value={sessions.filter((s) => s.available).length} color={SUCCESS} bg={SUCCESS_BG} />
-            <SummaryChip icon="🎫" label="Total Slots" value={sessions.reduce((a, s) => a + s.totalTokens, 0)} color="#F59E0B" bg={WARNING_BG} />
-          </View>
+        {/* ── Summary chips ── */}
+        <View style={[styles.section, styles.summaryRow]}>
+          <SummaryChip icon="🏥" label="Sessions"  value={sessions.length} color={PRIMARY} bg={PRIMARY_SUBTLE} />
+          <SummaryChip icon="✅" label="Available" value={availSessions}   color={SUCCESS} bg={SUCCESS_BG}     />
+          <SummaryChip icon="🎫" label="Slots"     value={totalSlots}      color="#F59E0B" bg={WARNING_BG}     />
         </View>
 
         {/* ── Session Cards ── */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{activeDay} Sessions</Text>
 
-          {sessions.map((session) => {
+          {daySessions.map((session) => {
             const remaining = session.totalTokens - session.bookedTokens;
-            const pct = (session.bookedTokens / session.totalTokens) * 100;
+            const pct = Math.min((session.bookedTokens / session.totalTokens) * 100, 100);
             const full = remaining === 0;
 
             return (
               <View key={session.id} style={styles.sessionCard}>
-                {/* Card Header */}
+                {/* Header */}
                 <View style={styles.sessionCardTop}>
-                  <View>
+                  <View style={{ flex: 1 }}>
                     <Text style={styles.sessionName}>{session.name}</Text>
-                    <Text style={styles.sessionTime}>
-                      {fmt12(session.startTime)} – {fmt12(session.endTime)}
-                    </Text>
+                    <Text style={styles.sessionTime}>{fmt12(session.startTime)} – {fmt12(session.endTime)}</Text>
                   </View>
-                  <View style={[
-                    styles.availBadge,
-                    session.available ? styles.availBadgeOn : styles.availBadgeOff,
-                  ]}>
-                    <Text style={[
-                      styles.availBadgeText,
-                      session.available ? styles.availBadgeTextOn : styles.availBadgeTextOff,
-                    ]}>
+                  <View style={[styles.availBadge, session.available ? styles.availBadgeOn : styles.availBadgeOff]}>
+                    <Text style={[styles.availBadgeText, session.available ? styles.availBadgeTextOn : styles.availBadgeTextOff]}>
                       {session.available ? 'Active' : 'Inactive'}
                     </Text>
                   </View>
                 </View>
 
-                {/* Token Progress */}
+                {/* Token progress */}
                 <View style={styles.tokenSection}>
                   <View style={styles.tokenMeta}>
                     <Text style={styles.tokenLabel}>Tokens Booked</Text>
                     <Text style={[styles.tokenCount, full && styles.tokenFull]}>
-                      {session.bookedTokens} / {session.totalTokens}
-                      {full ? ' (Full)' : ` (${remaining} left)`}
+                      {session.bookedTokens} / {session.totalTokens} {full ? '(Full)' : `(${remaining} left)`}
                     </Text>
                   </View>
                   <View style={styles.progressBg}>
@@ -155,137 +155,133 @@ export default function BookingScreen() {
                   </View>
                 </View>
 
-                {/* Details Grid */}
+                {/* Details */}
                 <View style={styles.detailGrid}>
-                  <DetailItem icon="⏱" label="Duration" value={`${session.duration} min`} />
-                  <DetailItem icon="🌐" label="Online" value={session.onlineBooking ? 'Yes' : 'No'} />
+                  <DetailItem icon="⏱" label="Duration"     value={`${session.duration} min`}            />
+                  <DetailItem icon="🌐" label="Online Booking" value={session.onlineBooking ? 'Yes' : 'No'} />
                 </View>
 
                 {/* Actions */}
                 <View style={styles.sessionActions}>
-                  <TouchableOpacity
-                    style={styles.toggleBtn}
-                    onPress={() => toggleAvailability(session.id)}
-                  >
-                    <Text style={styles.toggleBtnText}>
-                      {session.available ? 'Disable' : 'Enable'}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.editBtn}
+                  <Button
+                    label={session.available ? 'Disable' : 'Enable'}
+                    variant="secondary"
+                    size="sm"
+                    onPress={() => handleToggle(session.id, session.name, session.available)}
+                    accessibilityLabel={`${session.available ? 'Disable' : 'Enable'} ${session.name}`}
+                  />
+                  <Button
+                    label="✏ Edit Session"
+                    variant="primary"
+                    size="sm"
                     onPress={() => openEdit(session)}
-                  >
-                    <Text style={styles.editBtnText}>✏ Edit Session</Text>
-                  </TouchableOpacity>
+                    accessibilityLabel={`Edit ${session.name}`}
+                  />
                 </View>
               </View>
             );
           })}
         </View>
-
       </ScrollView>
 
       {/* ── Edit Modal ── */}
-      <Modal visible={showEditModal} animationType="slide" transparent onRequestClose={() => setShowEditModal(false)}>
+      <Modal
+        visible={showModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowModal(false)}
+        accessibilityViewIsModal
+      >
         <View style={styles.overlay}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Edit Session</Text>
-            <Text style={styles.modalSubtitle}>{editingSession?.name}</Text>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            <View style={styles.modal}>
+              <Text style={styles.modalTitle}>Edit Session</Text>
+              <Text style={styles.modalSubtitle}>{editingSession?.name}</Text>
 
-            {editingSession && (
-              <>
-                <ModalField label="Session Name"
-                  value={editingSession.name}
-                  onChangeText={(v) => setEditingSession((e) => e ? { ...e, name: v } : e)}
-                />
-                <View style={styles.modalRow}>
-                  <View style={{ flex: 1, marginRight: 8 }}>
-                    <ModalField label="Start Time"
-                      value={editingSession.startTime}
-                      onChangeText={(v) => setEditingSession((e) => e ? { ...e, startTime: v } : e)}
-                      placeholder="HH:MM"
-                    />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <ModalField label="End Time"
-                      value={editingSession.endTime}
-                      onChangeText={(v) => setEditingSession((e) => e ? { ...e, endTime: v } : e)}
-                      placeholder="HH:MM"
-                    />
-                  </View>
-                </View>
-                <View style={styles.modalRow}>
-                  <View style={{ flex: 1, marginRight: 8 }}>
-                    <ModalField label="Duration (min)"
-                      value={String(editingSession.duration)}
-                      onChangeText={(v) => setEditingSession((e) => e ? { ...e, duration: Number(v) || 0 } : e)}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <ModalField label="Total Tokens"
-                      value={String(editingSession.totalTokens)}
-                      onChangeText={(v) => setEditingSession((e) => e ? { ...e, totalTokens: Number(v) || 0 } : e)}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                </View>
+              {editingSession && (
+                <>
+                  <FormField
+                    label="Session Name"
+                    value={editingSession.name}
+                    onChangeText={(v) => setEditingSession((e) => e && { ...e, name: v })}
+                    error={errors.name}
+                    required
+                  />
 
-                <View style={styles.switchRow}>
-                  <View>
-                    <Text style={styles.switchLabel}>Online Booking</Text>
-                    <Text style={styles.switchDesc}>Allow patients to book online</Text>
+                  <View style={styles.modalRow}>
+                    <View style={{ flex: 1, marginRight: 8 }}>
+                      <FormField
+                        label="Start Time"
+                        value={editingSession.startTime}
+                        onChangeText={(v) => setEditingSession((e) => e && { ...e, startTime: v })}
+                        placeholder="HH:MM"
+                        error={errors.timeRange}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <FormField
+                        label="End Time"
+                        value={editingSession.endTime}
+                        onChangeText={(v) => setEditingSession((e) => e && { ...e, endTime: v })}
+                        placeholder="HH:MM"
+                      />
+                    </View>
                   </View>
-                  <Switch
+
+                  <View style={styles.modalRow}>
+                    <View style={{ flex: 1, marginRight: 8 }}>
+                      <FormField
+                        label="Duration (min)"
+                        value={String(editingSession.duration)}
+                        onChangeText={(v) => setEditingSession((e) => e && { ...e, duration: parseInt(v) || 0 })}
+                        keyboardType="numeric"
+                        error={errors.duration}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <FormField
+                        label="Total Tokens"
+                        value={String(editingSession.totalTokens)}
+                        onChangeText={(v) => setEditingSession((e) => e && { ...e, totalTokens: parseInt(v) || 0 })}
+                        keyboardType="numeric"
+                        error={errors.totalTokens}
+                      />
+                    </View>
+                  </View>
+
+                  <SwitchRow
+                    label="Online Booking"
+                    desc="Allow patients to book online"
                     value={editingSession.onlineBooking}
-                    onValueChange={(v) => setEditingSession((e) => e ? { ...e, onlineBooking: v } : e)}
-                    trackColor={{ false: GRAY_200, true: PRIMARY_LIGHT }}
-                    thumbColor={editingSession.onlineBooking ? PRIMARY : WHITE}
+                    onToggle={() => setEditingSession((e) => e && { ...e, onlineBooking: !e.onlineBooking })}
                   />
-                </View>
-
-                <View style={styles.switchRow}>
-                  <View>
-                    <Text style={styles.switchLabel}>Session Active</Text>
-                    <Text style={styles.switchDesc}>Enable this session for bookings</Text>
-                  </View>
-                  <Switch
+                  <SwitchRow
+                    label="Session Active"
+                    desc="Enable this session for bookings"
                     value={editingSession.available}
-                    onValueChange={(v) => setEditingSession((e) => e ? { ...e, available: v } : e)}
-                    trackColor={{ false: GRAY_200, true: PRIMARY_LIGHT }}
-                    thumbColor={editingSession.available ? PRIMARY : WHITE}
+                    onToggle={() => setEditingSession((e) => e && { ...e, available: !e.available })}
                   />
-                </View>
 
-                <View style={styles.modalBtns}>
-                  <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowEditModal(false)}>
-                    <Text style={styles.modalCancelText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalSaveBtn} onPress={saveSession}>
-                    <Text style={styles.modalSaveText}>Save Changes</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </View>
+                  <View style={styles.modalBtns}>
+                    <Button label="Cancel" variant="secondary" onPress={() => setShowModal(false)} />
+                    <Button label="Save Changes" variant="primary" onPress={saveSession} />
+                  </View>
+                </>
+              )}
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function fmt12(t: string) {
-  const [h, m] = t.split(':').map(Number);
-  const ampm = h < 12 ? 'AM' : 'PM';
-  const hour = h % 12 || 12;
-  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
-}
+// ── Sub-components ────────────────────────────────────────────────────────────
 
-function SummaryChip({ icon, label, value, color, bg }: any) {
+function SummaryChip({ icon, label, value, color, bg }: { icon: string; label: string; value: number; color: string; bg: string }) {
   return (
-    <View style={[summaryStyles.chip, { backgroundColor: bg }]}>
-      <Text style={summaryStyles.icon}>{icon}</Text>
+    <View style={[summaryStyles.chip, { backgroundColor: bg }]} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Text style={summaryStyles.icon} accessibilityHidden>{icon}</Text>
       <Text style={[summaryStyles.value, { color }]}>{value}</Text>
       <Text style={summaryStyles.label}>{label}</Text>
     </View>
@@ -301,8 +297,8 @@ const summaryStyles = StyleSheet.create({
 
 function DetailItem({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <View style={detailStyles.item}>
-      <Text style={detailStyles.icon}>{icon}</Text>
+    <View style={detailStyles.item} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Text style={detailStyles.icon} accessibilityHidden>{icon}</Text>
       <View>
         <Text style={detailStyles.label}>{label}</Text>
         <Text style={detailStyles.value}>{value}</Text>
@@ -310,7 +306,6 @@ function DetailItem({ icon, label, value }: { icon: string; label: string; value
     </View>
   );
 }
-
 const detailStyles = StyleSheet.create({
   item:  { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 },
   icon:  { fontSize: 20 },
@@ -318,45 +313,41 @@ const detailStyles = StyleSheet.create({
   value: { fontSize: FONT_MD, fontWeight: '700', color: GRAY_900 },
 });
 
-function ModalField({ label, value, onChangeText, placeholder, keyboardType }: any) {
+function SwitchRow({ label, desc, value, onToggle }: { label: string; desc: string; value: boolean; onToggle: () => void }) {
   return (
-    <View style={mfStyles.group}>
-      <Text style={mfStyles.label}>{label}</Text>
-      <TextInput
-        style={mfStyles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={GRAY_400}
-        keyboardType={keyboardType}
-      />
+    <View style={switchStyles.row} accessible accessibilityRole="switch" accessibilityLabel={label} accessibilityState={{ checked: value }}>
+      <View style={{ flex: 1 }}>
+        <Text style={switchStyles.label}>{label}</Text>
+        <Text style={switchStyles.desc}>{desc}</Text>
+      </View>
+      <Switch value={value} onValueChange={onToggle} trackColor={{ false: GRAY_200, true: PRIMARY_LIGHT }} thumbColor={value ? PRIMARY : WHITE} />
     </View>
   );
 }
-
-const mfStyles = StyleSheet.create({
-  group: { marginBottom: SPACE_MD },
-  label: { fontSize: FONT_SM, fontWeight: '600', color: GRAY_600, marginBottom: 6 },
-  input: { backgroundColor: GRAY_100, borderRadius: RADIUS_LG, padding: SPACE_MD, fontSize: FONT_MD, borderWidth: 1, borderColor: GRAY_200, color: GRAY_900 },
+const switchStyles = StyleSheet.create({
+  row:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SPACE_MD, borderTopWidth: 1, borderTopColor: GRAY_100 },
+  label: { fontSize: FONT_MD, fontWeight: '600', color: GRAY_900 },
+  desc:  { fontSize: FONT_SM, color: GRAY_500, marginTop: 2 },
 });
 
 // ── Styles ────────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: PRIMARY_BG },
   header:    { paddingHorizontal: SPACE_LG, paddingVertical: SPACE_LG },
   title:     { fontSize: FONT_2XL, fontWeight: '800', color: GRAY_900 },
   subtitle:  { fontSize: FONT_SM, color: GRAY_500, marginTop: 2 },
-
-  section:      { paddingHorizontal: SPACE_LG, marginBottom: SPACE_XL },
+  section:   { paddingHorizontal: SPACE_LG, marginBottom: SPACE_XL },
   sectionTitle: { fontSize: FONT_LG, fontWeight: '700', color: GRAY_900, marginBottom: SPACE_MD },
 
-  dayRow:       { flexDirection: 'row', justifyContent: 'space-between' },
-  dayBtn:       { alignItems: 'center', paddingVertical: SPACE_SM, paddingHorizontal: 6, borderRadius: RADIUS_LG, backgroundColor: WHITE, flex: 1, marginHorizontal: 3, borderWidth: 1, borderColor: GRAY_200 },
+  dayScroll:    { gap: SPACE_SM },
+  dayBtn:       { alignItems: 'center', paddingVertical: SPACE_SM, paddingHorizontal: 10, borderRadius: RADIUS_LG, backgroundColor: WHITE, marginRight: SPACE_SM, borderWidth: 1, borderColor: GRAY_200, minWidth: 44 },
   dayBtnActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
   dayLabel:     { fontSize: FONT_SM, fontWeight: '700', color: GRAY_500 },
   dayLabelActive: { color: WHITE },
   dayDate:      { fontSize: FONT_SM - 1, color: GRAY_400, marginTop: 2 },
-  dayDateActive:  { color: '#E9D5FF' },
+  dayDateActive: { color: '#E9D5FF' },
+  todayDot:     { width: 5, height: 5, borderRadius: 3, backgroundColor: SUCCESS, marginTop: 3 },
 
   summaryRow:   { flexDirection: 'row', gap: SPACE_SM },
 
@@ -379,26 +370,13 @@ const styles = StyleSheet.create({
   progressBg:   { height: 6, backgroundColor: GRAY_100, borderRadius: RADIUS_FULL, overflow: 'hidden' },
   progressFill: { height: 6, borderRadius: RADIUS_FULL },
 
-  detailGrid:  { flexDirection: 'row', marginBottom: SPACE_MD, gap: SPACE_LG },
+  detailGrid:   { flexDirection: 'row', marginBottom: SPACE_MD, gap: SPACE_LG },
+  sessionActions:{ flexDirection: 'row', gap: SPACE_SM, borderTopWidth: 1, borderTopColor: GRAY_100, paddingTop: SPACE_MD },
 
-  sessionActions: { flexDirection: 'row', gap: SPACE_SM, borderTopWidth: 1, borderTopColor: GRAY_100, paddingTop: SPACE_MD },
-  toggleBtn:      { flex: 1, paddingVertical: SPACE_MD, borderRadius: RADIUS_LG, alignItems: 'center', backgroundColor: GRAY_100, borderWidth: 1, borderColor: GRAY_200 },
-  toggleBtnText:  { fontSize: FONT_SM, fontWeight: '700', color: GRAY_600 },
-  editBtn:        { flex: 2, paddingVertical: SPACE_MD, borderRadius: RADIUS_LG, alignItems: 'center', backgroundColor: PRIMARY },
-  editBtnText:    { fontSize: FONT_SM, fontWeight: '700', color: WHITE },
-
-  // Modal
-  overlay:     { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
-  modal:       { backgroundColor: WHITE, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: SPACE_2XL, maxHeight: '90%' },
-  modalTitle:  { fontSize: FONT_XL, fontWeight: '800', color: GRAY_900, marginBottom: 4 },
+  overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
+  modal:      { backgroundColor: WHITE, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: SPACE_2XL },
+  modalTitle: { fontSize: FONT_XL, fontWeight: '800', color: GRAY_900, marginBottom: 4 },
   modalSubtitle: { fontSize: FONT_SM, color: GRAY_500, marginBottom: SPACE_XL },
-  modalRow:    { flexDirection: 'row' },
-  switchRow:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SPACE_MD, borderTopWidth: 1, borderTopColor: GRAY_100 },
-  switchLabel: { fontSize: FONT_MD, fontWeight: '600', color: GRAY_900 },
-  switchDesc:  { fontSize: FONT_SM, color: GRAY_500, marginTop: 2 },
-  modalBtns:   { flexDirection: 'row', gap: SPACE_SM, marginTop: SPACE_XL },
-  modalCancelBtn: { flex: 1, paddingVertical: SPACE_LG, borderRadius: RADIUS_LG, alignItems: 'center', backgroundColor: GRAY_100, borderWidth: 1, borderColor: GRAY_200 },
-  modalCancelText:{ color: GRAY_600, fontWeight: '700' },
-  modalSaveBtn: { flex: 2, paddingVertical: SPACE_LG, borderRadius: RADIUS_LG, alignItems: 'center', backgroundColor: PRIMARY },
-  modalSaveText: { color: WHITE, fontWeight: '700' },
+  modalRow:   { flexDirection: 'row' },
+  modalBtns:  { flexDirection: 'row', gap: SPACE_SM, marginTop: SPACE_XL },
 });
