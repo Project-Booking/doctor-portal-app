@@ -1,79 +1,99 @@
 # 🏥 Doctor Portal App
 
-A comprehensive, production-ready **React Native medical application** consolidating all doctor management features into a single, modular platform.
+A modern, production-ready **React Native mobile application** for doctor OPD management — built with Expo Router, TypeScript, and a unified violet design system.
 
-**Repository**: [github.com/Project-Booking/doctor-portal-app](https://github.com/Project-Booking/doctor-portal-app)
+**Repository**: [github.com/Project-Booking/doctor-portal-app](https://github.com/Project-Booking/doctor-portal-app)  
+**Platform**: Android & iOS (via Expo Go or native build)  
+**Last Updated**: May 2026
 
-## ✅ Project Status: COMPLETE
+---
 
-All modules have been fully implemented and tested.
+## ✨ Features
 
-### Core Modules (All Complete ✅)
-- **Appointments Management** - Schedule and manage patient appointments ✅
-- **Doctor Schedule** - Manage shifts, time slots, and availability ✅
-- **Profile & Settings** - Customize doctor profile and preferences ✅
-- **Session Booking** - Manage online consultation sessions ✅
-- **Site Management** - Handle clinic/hospital information ✅
-- **Wellness Dashboard** - Track health and wellness metrics ✅
-- **Mobile Schedule** - On-the-go schedule access ✅
-- **Booking Preferences** - Configure booking rules and availability ✅
+### 📋 Appointments Management
+- View all patient appointments with expandable detail cards
+- Filter by status: **All / Confirmed / Pending / Completed / Cancelled**
+- Real-time search by patient name or visit type
+- Inline actions: **Confirm**, **Cancel**, **Mark Completed**
+- Patient stats dashboard (counts per status)
 
-### Infrastructure (All Complete ✅)
-- ✅ Shared utilities and helpers (formatDate, formatTime, debounce, throttle, etc.)
-- ✅ Testing suite with Jest (helpers.test.js, validation.test.js)
-- ✅ Error handling & logging
-- ✅ Form validation
-- ✅ Data persistence with AsyncStorage
-- ✅ API integration layer
-- ✅ State management with Context API
+### 🏥 OPD Session Booking
+- Configure OPD sessions per day of the week
+- Token progress bars showing booked vs. available slots
+- Enable / disable individual sessions on the fly
+- Slide-up edit modal with full session configuration:
+  - Session name, start/end time, slot duration, total tokens
+  - Online booking toggle, active/inactive toggle
 
-### Key Capabilities
-✅ Appointment scheduling and tracking
-✅ Real-time notifications
-✅ Dark/Light theme support
-✅ Responsive design for all devices
-✅ Modular, scalable architecture
-✅ State management with Context API
-✅ API integration layer
-✅ Data persistence with AsyncStorage
-✅ Form validation
-✅ Error handling & logging
-✅ Unit & integration testing
-✅ Production-ready configuration
+### 🕐 Shift Schedule Management
+- Create, edit, and delete doctor shifts
+- Day-of-week selector per shift (Mon–Sun)
+- Overview stats: total shifts, active, inactive, total tokens
+- Active/inactive toggle per shift card
 
-## 🏗️ Architecture
+### 👤 Doctor Profile
+- Hero cover with avatar, name, specialty, hospital
+- Key stats: total patients, years experience, rating, reviews
+- Tabbed view: **Info** | **Education** | **Certifications**
+
+### ⚙️ Settings
+- **Profile tab**: update personal & professional details
+- **Booking tab**: online booking, auto-confirm, SMS reminders, slot duration
+- **Notifications tab**: Push, Email, SMS channels + event type toggles
+
+### 🌿 Wellness Hub
+- Doctor wellness tips carousel
+- Profile information editor
+- Notification preferences
+- Light / Dark / Auto theme selector
+
+### 🏫 Site Management
+- Add / remove professional certifications
+- Add / remove education entries
+
+---
+
+## 🗂️ Project Structure
 
 ```
-DoctorPortalApp/
-├── src/
-│   ├── modules/               # Feature modules
-│   │   ├── appointments/
-│   │   ├── schedule/
-│   │   ├── profile/
-│   │   ├── booking/
-│   │   ├── site-management/
-│   │   ├── wellness/
-│   │   └── mobile-schedule/
-│   ├── services/              # API layer
-│   ├── utils/                 # Helpers & utilities
-│   ├── components/            # Reusable UI components
-│   ├── theme/                 # Theme configuration
-│   ├── constants/             # App constants
-│   └── context/               # State management
-├── App.js                     # Entry point
+doctor-portal-app/
+├── app/
+│   ├── _layout.tsx                  # Root navigator (Stack)
+│   └── (tabs)/
+│       ├── _layout.tsx              # Tab navigator (5 tabs)
+│       ├── index.tsx                # 🏠 Home Dashboard
+│       ├── appointments.tsx         # 📋 Appointments list
+│       ├── booking.tsx              # 🏥 OPD Session Booking
+│       ├── schedule.tsx             # 🕐 Shift Schedule
+│       ├── profile.tsx              # 👤 Doctor Profile
+│       ├── settings.tsx             # ⚙️  Settings
+│       ├── site.tsx                 # 🏫 Site Management
+│       └── wellness.tsx             # 🌿 Wellness Hub
+├── components/
+│   ├── haptic-tab.tsx               # Tab bar haptic feedback
+│   └── ui/
+│       ├── icon-symbol.tsx          # SF Symbols ↔ Material Icons
+│       └── icon-symbol.ios.tsx      # iOS native SF Symbols
+├── constants/
+│   └── theme.ts                     # Design system tokens
+├── hooks/
+│   ├── use-color-scheme.ts
+│   └── use-theme-color.ts
+├── assets/images/                   # App icons & splash
+├── android/                         # Android native project
+├── app.json                         # Expo config
 ├── package.json
-├── app.json                   # Expo configuration
-├── eas.json                   # EAS Build configuration
-└── README.md
+└── tsconfig.json
 ```
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js v16+ and npm v7+
-- React Native CLI
-- Expo CLI (for EAS builds)
-- Git
+- **Node.js** v18+
+- **npm** v9+ or **yarn**
+- **Expo Go** app on your phone — [Android](https://play.google.com/store/apps/details?id=host.exp.exponent) · [iOS](https://apps.apple.com/app/expo-go/id982107779)
 
 ### Installation
 
@@ -83,298 +103,116 @@ git clone https://github.com/Project-Booking/doctor-portal-app.git
 cd doctor-portal-app
 
 # Install dependencies
-npm install --legacy-peer-deps
+npm install
 
-# Start development server
-npm start
+# Start the development server
+npx expo start
 ```
 
-### Available Scripts
-
-```bash
-# Start Metro development server
-npm start
-
-# Run on Android
-npm run android
-
-# Run on iOS
-npm run ios
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm test:coverage
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
-# Build for Android
-npm run build:android
-
-# Build for iOS
-npm run build:ios
-```
-
-## 📦 Dependencies
-
-### Core
-- `react`: ^18.2.0
-- `react-native`: ^0.72.0
-- `@react-navigation/native`: ^6.1.0
-- `@react-navigation/bottom-tabs`: ^6.5.0
-
-### UI & Styling
-- `react-native-paper`: ^5.10.0
-
-### Storage
-- `@react-native-async-storage/async-storage`: ^1.18.0
-
-### Safe Area
-- `react-native-safe-area-context`: ^4.7.0
-- `react-native-screens`: ^3.22.0
-
-## 🛠️ Configuration
-
-### Environment Variables
-Create `.env` file:
-```
-API_BASE_URL=https://api.example.com
-API_TIMEOUT=30000
-LOG_LEVEL=debug
-```
-
-### Theme
-Customize in `src/theme/colors.js` and `src/theme/typography.js`
-
-## 📱 Deployment
-
-### iOS (via EAS)
-See [iOS_DEPLOYMENT_GUIDE.md](iOS_DEPLOYMENT_GUIDE.md) for detailed instructions on deploying to iPhone.
-
-```bash
-eas build --platform ios
-```
-
-### Android
-```bash
-eas build --platform android
-```
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run with coverage
-npm test:coverage
-
-# Run specific test file
-npm test -- AppointmentsScreen.test.js
-
-# Watch mode
-npm test -- --watch
-```
-
-## 📚 Documentation
-
-- [iOS Deployment Guide](iOS_DEPLOYMENT_GUIDE.md) - Deploy to iPhone 16
-- [GitHub Desktop Guide](GITHUB_DESKTOP_GUIDE.md) - Push to GitHub
-- [Apple ID Setup](APPLE_ID_SETUP.md) - Free Apple Developer account
-- [Architecture Guide](ARCHITECTURE.md) - Project structure & design
-- [Build In Progress](BUILD_IN_PROGRESS.md) - iOS build status
-
-## 🤝 Contributing
-
-1. Create a feature branch: `git checkout -b feature/my-feature`
-2. Make your changes
-3. Run tests: `npm test`
-4. Lint: `npm run lint`
-5. Commit: `git commit -m "Add my feature"`
-6. Push: `git push origin feature/my-feature`
-7. Create Pull Request
-
-## 📋 Project Status
-
-✅ **Complete & Production-Ready**
-- All 8 feature modules implemented
-- State management configured
-- API layer ready
-- Error handling & logging
-- Testing infrastructure
-- Comprehensive documentation
-- iOS & Android build configuration
-
-## 🔒 Security
-
-- Secure credential storage with AsyncStorage
-- Environment variable protection
-- Input validation on all forms
-- Error handling without exposing sensitive data
-
-## 📞 Support
-
-For issues and questions:
-1. Check the [documentation](docs/)
-2. Search [existing issues](https://github.com/Project-Booking/doctor-portal-app/issues)
-3. Create a new issue with details
-
-## 📄 License
-
-MIT - See LICENSE file for details
-
-## 👥 Organization
-
-- **GitHub Organization**: [Project-Booking](https://github.com/Project-Booking)
-- **Repository**: [doctor-portal-app](https://github.com/Project-Booking/doctor-portal-app)
-- **Created**: April 2026
+Then scan the QR code with **Expo Go** on your phone, or press:
+- `a` → Android emulator
+- `i` → iOS simulator (macOS only)
+- `w` → Web browser (limited — see note below)
 
 ---
 
-**Ready to get started?**
-1. Clone the repo: `git clone https://github.com/Project-Booking/doctor-portal-app.git`
-2. Install: `npm install --legacy-peer-deps`
-3. Start: `npm start`
-4. Open on your device or emulator!
+## 📜 Scripts
 
-For deployment to iPhone 16, see [iOS_DEPLOYMENT_GUIDE.md](iOS_DEPLOYMENT_GUIDE.md).
-│   ├── navigation/
-│   │   └── MainNavigator.js        # Main navigation system
-│   │
-│   ├── shared-components/
-│   │   └── BottomTabBar.js         # Shared tab bar component
-│   │
-│   └── utils/                      # Utility functions
-│
-└── README.md
+```bash
+# Start Metro dev server
+npx expo start
+
+# Clear cache and restart
+npx expo start --clear
+
+# Run on Android device/emulator
+npx expo run:android
+
+# Run on iOS device/simulator
+npx expo run:ios
+
+# Lint
+npx expo lint
 ```
 
-## Module Organization
+---
 
-### ✅ Completed Modules
+## 📦 Key Dependencies
 
-1. **Appointments Module**
-   - Replaced: DoctorAppointmentDashboard
-   - Components: Header, Stats, List, Metrics
-   - New Files: AppointmentHeader, AppointmentStats, AppointmentsList, PatientsMetrics
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `expo` | ~54.x | Managed workflow & toolchain |
+| `expo-router` | ~3.4 | File-based navigation |
+| `react-native` | 0.73.x | Core framework |
+| `react-native-safe-area-context` | ~5.6 | Safe area insets |
+| `@react-navigation/bottom-tabs` | ^7 | Tab navigation |
+| `@expo/vector-icons` | ^14 | Icon library |
+| `expo-haptics` | ~12.8 | Tab haptic feedback |
+| `expo-font` | ~11.10 | Custom font loading |
+| `react-native-reanimated` | ~3.6 | Animations |
 
-2. **Schedule Module**
-   - Replaced: DoctorScheduleManagement, DoctorScheduleEditSlot
-   - Components: Header, ShiftList, ShiftCard, EditPanel
-   - New Files: ScheduleHeader, ShiftList, ShiftCard, ScheduleEditPanel
+---
 
-3. **Profile Module**
-   - Replaced: DoctorProfileSettings, MobileProfessionalDetails
-   - Components: Header, Stats, BasicInfo
-   - New Files: ProfileHeader, ProfileStats, ProfileBasicInfo
+## 🎨 Design System
 
-4. **Settings Module**
-   - Replaced: DoctorSettingsPreferences, BookingPanel, ProfilePanel
-   - Components: Header, Tabs, ProfilePanel, BookingPanel
-   - New Files: SettingsHeader, SettingsTabs, SettingsProfilePanel, SettingsBookingPanel
+All design tokens are centralized in [`constants/theme.ts`](constants/theme.ts):
 
-### 📋 Module Mapping
-
-| Old Folder | New Module | New Location |
-|-----------|------------|--------------|
-| DoctorAppointmentDashboard | appointments | src/modules/appointments/ |
-| DoctorScheduleManagement | schedule | src/modules/schedule/ |
-| DoctorScheduleEditSlot | schedule | src/modules/schedule/ |
-| DoctorProfileSettings | profile | src/modules/profile/ |
-| MobileProfessionalDetails | profile | src/modules/profile/ |
-| DoctorSettingsPreferences | settings | src/modules/settings/ |
-| DoctorSessionBookingManagement | booking | src/modules/booking/ |
-| DoctorSiteManagementCertifications | site-management | src/modules/site-management/ |
-| DoctorSiteManagementFull | site-management | src/modules/site-management/ |
-| SiteManagementEducation | site-management | src/modules/site-management/ |
-| PremiumWellnessDashboard | wellness | src/modules/wellness/ |
-| RefinedPremiumWellnessSettings | wellness | src/modules/wellness/ |
-| MobileBookingPreferences | booking | src/modules/booking/ |
-| MobileScheduleDashboard | schedule | src/modules/schedule/ |
-| DarkModeDoctorDashboard | appointments | src/modules/appointments/ |
-
-## File Naming Conventions
-
-### Before (Old Structure)
-- Generic names: App.js, Header.js, Screen.js
-- Folder names for context: DoctorAppointmentDashboard
-
-### After (New Structure)
-- Descriptive names: AppointmentHeader.js, ScheduleEditPanel.js, PatientsMetrics.js
-- Module-based organization for context
-- Consistent naming across the application
-
-## Navigation System
-
-The app uses a bottom tab navigation with 4 main screens:
-
-1. **Appointments** - View and manage appointments
-2. **Schedule** - Manage doctor shifts and availability
-3. **Profile** - View and edit profile information
-4. **Settings** - Configure app preferences
-
-Navigation is handled by `MainNavigator.js` which manages the state and renders appropriate screens.
-
-## Component Organization Guidelines
-
-### Module Structure
-Each module should contain:
-- `components/` folder with all related components
-- Index file (optional) for easy imports
-- Module-specific hooks/utilities (if needed)
-
-### Component Naming
-- Use descriptive names: `AppointmentHeader` instead of `Header`
-- Use module prefix when helpful: `ScheduleEditPanel` instead of `EditPanel`
-- PascalCase for all component files
-
-### Import Paths
-Good:
-```javascript
-import AppointmentHeader from '../modules/appointments/components/AppointmentHeader';
+```ts
+PRIMARY        = '#7C3AED'  // Violet 600 — primary brand color
+SUCCESS        = '#10B981'  // Green
+WARNING        = '#F59E0B'  // Amber
+DANGER         = '#EF4444'  // Red
+INFO           = '#3B82F6'  // Blue
 ```
 
-Avoid:
-```javascript
-import Header from './Header';  // Ambiguous
-```
+The file exports spacing scale, font size scale, border radii, and shadow presets — making all screens visually consistent.
 
-## How to Add New Features
+---
 
-1. Create a new folder in `src/modules/feature-name/components/`
-2. Add your components with descriptive names
-3. Create a screen file in `src/screens/FeatureScreen.js`
-4. Update `MainNavigator.js` to include the new screen
-5. Update bottom tab navigation if it's a main feature
+## 📱 Navigation
 
-## Benefits of This Structure
+5 visible bottom tabs:
 
-✅ **Clear Organization** - Features are grouped logically
-✅ **Scalability** - Easy to add new modules
-✅ **Maintainability** - Descriptive naming reduces confusion
-✅ **Reusability** - Shared components are centralized
-✅ **Navigation** - Unified navigation system
-✅ **Consistency** - All components follow same pattern
+| Tab | Screen | Description |
+|-----|--------|-------------|
+| 🏠 Home | `index.tsx` | Dashboard with stats, active session, today's appointments |
+| 📋 Appointments | `appointments.tsx` | Full patient appointment list |
+| 🏥 Booking *(center)* | `booking.tsx` | OPD session configuration |
+| 🕐 Schedule | `schedule.tsx` | Shift management |
+| 👤 Profile | `profile.tsx` | Doctor profile & credentials |
 
-## Migration Status
+Settings, Site Management, and Wellness are accessible via `router.push()` from the relevant screens.
 
-- ✅ Project structure created
-- ✅ Navigation system implemented
-- ✅ Core modules organized (Appointments, Schedule, Profile, Settings)
-- ⏳ Additional modules pending (Booking, Site Management, Wellness)
-- ⏳ Shared utilities and helpers
-- ⏳ Testing suite
+---
 
-## Future Improvements
+## ⚠️ Known Limitations
 
-- Add Context API for global state management
-- Implement Redux for complex state
-- Add error boundaries
-- Implement data persistence
-- Add unit tests
-- Setup CI/CD pipeline
+> **Web bundler**: `react-native-reanimated` v3.6.x has a known incompatibility with the Expo web bundler (`_getAnimationTimestamp` error). This does **not** affect Android or iOS. Use Expo Go on a physical device or an emulator for the best experience.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m "feat: add your feature"`
+4. Push to your branch: `git push origin feature/your-feature`
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+MIT — see [LICENSE](LICENSE) for details.
+
+---
+
+## 👥 Organization
+
+| | |
+|--|--|
+| **GitHub Org** | [Project-Booking](https://github.com/Project-Booking) |
+| **Repository** | [doctor-portal-app](https://github.com/Project-Booking/doctor-portal-app) |
+| **Stack** | React Native · Expo · TypeScript |
+| **Created** | April 2026 |
+| **Last Rebuild** | May 2026 |
