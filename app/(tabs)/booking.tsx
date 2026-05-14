@@ -281,7 +281,7 @@ export default function BookingScreen() {
 function SummaryChip({ icon, label, value, color, bg }: { icon: string; label: string; value: number; color: string; bg: string }) {
   return (
     <View style={[summaryStyles.chip, { backgroundColor: bg }]} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Text style={summaryStyles.icon} accessibilityHidden>{icon}</Text>
+      <Text style={summaryStyles.icon} importantForAccessibility='no-hide-descendants'>{icon}</Text>
       <Text style={[summaryStyles.value, { color }]}>{value}</Text>
       <Text style={summaryStyles.label}>{label}</Text>
     </View>
@@ -298,7 +298,7 @@ const summaryStyles = StyleSheet.create({
 function DetailItem({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <View style={detailStyles.item} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Text style={detailStyles.icon} accessibilityHidden>{icon}</Text>
+      <Text style={detailStyles.icon} importantForAccessibility='no-hide-descendants'>{icon}</Text>
       <View>
         <Text style={detailStyles.label}>{label}</Text>
         <Text style={detailStyles.value}>{value}</Text>

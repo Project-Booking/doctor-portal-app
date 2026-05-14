@@ -18,7 +18,7 @@ interface EmptyStateProps {
 export function EmptyState({ icon = '📋', title, subtitle, actionLabel, onAction }: EmptyStateProps) {
   return (
     <View style={styles.container} accessibilityRole="none">
-      <Text style={styles.icon} accessibilityHidden>{icon}</Text>
+      <Text style={styles.icon} importantForAccessibility='no-hide-descendants'>{icon}</Text>
       <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       {actionLabel && onAction ? (

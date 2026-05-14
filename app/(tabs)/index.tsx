@@ -77,7 +77,7 @@ export default function HomeScreen() {
               style={styles.avatar}
               accessibilityLabel={`${doctor.firstName} ${doctor.lastName} avatar`}
             />
-            <View style={styles.onlineDot} accessibilityHidden />
+            <View style={styles.onlineDot} importantForAccessibility='no-hide-descendants' />
           </TouchableOpacity>
         </View>
 
@@ -105,7 +105,7 @@ export default function HomeScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Active Session</Text>
             <View style={styles.activeSessionCard}>
-              <View style={styles.activePulse} accessibilityHidden />
+              <View style={styles.activePulse} importantForAccessibility='no-hide-descendants' />
               <View style={styles.activeSessionInfo}>
                 <Text style={styles.activeSessionName}>{activeSession.name}</Text>
                 <Text style={styles.activeSessionTime}>
@@ -141,7 +141,7 @@ export default function HomeScreen() {
                 accessibilityLabel={item.label}
               >
                 <View style={[styles.quickIconBg, { backgroundColor: item.bg }]}>
-                  <Text style={styles.quickIcon} accessibilityHidden>{item.icon}</Text>
+                  <Text style={styles.quickIcon} importantForAccessibility='no-hide-descendants'>{item.icon}</Text>
                 </View>
                 <Text style={[styles.quickLabel, { color: item.color }]}>{item.label}</Text>
               </TouchableOpacity>
@@ -194,7 +194,7 @@ function StatCard({ icon, label, value, delta, positive }: {
 }) {
   return (
     <View style={statStyles.card} accessible accessibilityLabel={`${label}: ${value}${delta ? ', ' + delta : ''}`}>
-      <Text style={statStyles.icon} accessibilityHidden>{icon}</Text>
+      <Text style={statStyles.icon} importantForAccessibility='no-hide-descendants'>{icon}</Text>
       <Text style={statStyles.value}>{value}</Text>
       <Text style={statStyles.label}>{label}</Text>
       {delta ? (

@@ -136,7 +136,7 @@ export default function ScheduleScreen() {
             { icon: '🎫', label: 'Total Tokens', value: totalTokens,    color: '#8B5CF6', bg: '#EDE9FE'      },
           ].map((c) => (
             <View key={c.label} style={[styles.overviewCard, { backgroundColor: c.bg }]} accessible accessibilityLabel={`${c.label}: ${c.value}`}>
-              <Text style={styles.overviewIcon} accessibilityHidden>{c.icon}</Text>
+              <Text style={styles.overviewIcon} importantForAccessibility='no-hide-descendants'>{c.icon}</Text>
               <Text style={[styles.overviewValue, { color: c.color }]}>{c.value}</Text>
               <Text style={styles.overviewLabel}>{c.label}</Text>
             </View>

@@ -134,7 +134,7 @@ export default function SiteManagementScreen() {
             certifications.map((c) => (
               <View key={c.id} style={styles.certCard}>
                 <View style={styles.certIcon}>
-                  <Text style={{ fontSize: 22 }} accessibilityHidden>🏅</Text>
+                  <Text style={{ fontSize: 22 }} importantForAccessibility='no-hide-descendants'>🏅</Text>
                 </View>
                 <View style={styles.certContent}>
                   <Text style={styles.certName}>{c.name}</Text>
@@ -146,7 +146,7 @@ export default function SiteManagementScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={`Remove ${c.name}`}
                 >
-                  <Text style={styles.deleteBtnText} accessibilityHidden>🗑</Text>
+                  <Text style={styles.deleteBtnText} importantForAccessibility='no-hide-descendants'>🗑</Text>
                 </TouchableOpacity>
               </View>
             ))
@@ -177,7 +177,7 @@ export default function SiteManagementScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={`Remove ${e.degree}`}
                 >
-                  <Text style={styles.deleteBtnText} accessibilityHidden>🗑</Text>
+                  <Text style={styles.deleteBtnText} importantForAccessibility='no-hide-descendants'>🗑</Text>
                 </TouchableOpacity>
               </View>
             ))

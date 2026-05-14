@@ -178,7 +178,7 @@ export default function PatientDetailScreen() {
 function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <View style={infoStyles.row} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Text style={infoStyles.icon} accessibilityHidden>{icon}</Text>
+      <Text style={infoStyles.icon} importantForAccessibility='no-hide-descendants'>{icon}</Text>
       <View style={infoStyles.content}>
         <Text style={infoStyles.label}>{label}</Text>
         <Text style={infoStyles.value}>{value}</Text>

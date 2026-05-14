@@ -146,7 +146,7 @@ export default function AppointmentsScreen() {
 
       {/* Search */}
       <View style={styles.searchRow}>
-        <Text style={styles.searchIcon} accessibilityHidden>🔍</Text>
+        <Text style={styles.searchIcon} importantForAccessibility='no-hide-descendants'>🔍</Text>
         <TextInput
           style={styles.searchInput}
           placeholder="Search patient or visit type…"
@@ -240,7 +240,7 @@ function AppointmentCard({ appt, isExpanded, onToggle, onConfirm, onCancel, onCo
           <View style={styles.tokenChip}>
             <Text style={styles.tokenChipText}>Token {appt.token}</Text>
           </View>
-          <Text style={styles.chevron} accessibilityHidden>{isExpanded ? '▲' : '▼'}</Text>
+          <Text style={styles.chevron} importantForAccessibility='no-hide-descendants'>{isExpanded ? '▲' : '▼'}</Text>
         </View>
       </TouchableOpacity>
 

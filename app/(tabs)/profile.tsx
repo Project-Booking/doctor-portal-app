@@ -73,7 +73,7 @@ export default function ProfileScreen() {
               accessible
               accessibilityLabel={`${s.label}: ${s.value}`}
             >
-              <Text style={styles.statIcon} accessibilityHidden>{s.icon}</Text>
+              <Text style={styles.statIcon} importantForAccessibility='no-hide-descendants'>{s.icon}</Text>
               <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
               <Text style={styles.statLabel}>{s.label}</Text>
             </View>
@@ -145,7 +145,7 @@ export default function ProfileScreen() {
             {certifications.map((cert) => (
               <View key={cert.id} style={styles.certCard} accessible accessibilityLabel={`${cert.name}: ${cert.subtitle}`}>
                 <View style={styles.certBadge}>
-                  <Text style={styles.certBadgeIcon} accessibilityHidden>🏅</Text>
+                  <Text style={styles.certBadgeIcon} importantForAccessibility='no-hide-descendants'>🏅</Text>
                 </View>
                 <View style={styles.certContent}>
                   <Text style={styles.certName}>{cert.name}</Text>
@@ -163,7 +163,7 @@ export default function ProfileScreen() {
 function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <View style={infoStyles.row} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Text style={infoStyles.icon} accessibilityHidden>{icon}</Text>
+      <Text style={infoStyles.icon} importantForAccessibility='no-hide-descendants'>{icon}</Text>
       <View style={infoStyles.content}>
         <Text style={infoStyles.label}>{label}</Text>
         <Text style={infoStyles.value}>{value}</Text>

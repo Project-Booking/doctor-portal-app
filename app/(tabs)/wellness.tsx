@@ -49,7 +49,7 @@ export default function WellnessScreen() {
 
         {/* ── Banner ── */}
         <View style={styles.banner}>
-          <Text style={styles.bannerIcon} accessibilityHidden>🌿</Text>
+          <Text style={styles.bannerIcon} importantForAccessibility='no-hide-descendants'>🌿</Text>
           <Text style={styles.bannerTitle} accessibilityRole="header">Doctor Wellness Hub</Text>
           <Text style={styles.bannerSub}>Your personal wellbeing toolkit</Text>
         </View>
@@ -65,7 +65,7 @@ export default function WellnessScreen() {
                 accessible
                 accessibilityLabel={`${item.label}: ${item.value}`}
               >
-                <Text style={styles.burnoutIcon} accessibilityHidden>{item.icon}</Text>
+                <Text style={styles.burnoutIcon} importantForAccessibility='no-hide-descendants'>{item.icon}</Text>
                 <Text style={[styles.burnoutValue, { color: item.color }]}>{item.value}</Text>
                 <Text style={styles.burnoutLabel}>{item.label}</Text>
               </View>
@@ -84,7 +84,7 @@ export default function WellnessScreen() {
                 accessible
                 accessibilityLabel={`${tip.title}: ${tip.body}`}
               >
-                <Text style={styles.tipIcon} accessibilityHidden>{tip.icon}</Text>
+                <Text style={styles.tipIcon} importantForAccessibility='no-hide-descendants'>{tip.icon}</Text>
                 <Text style={styles.tipTitle}>{tip.title}</Text>
                 <Text style={styles.tipBody}>{tip.body}</Text>
               </View>
@@ -106,7 +106,7 @@ export default function WellnessScreen() {
                   accessibilityLabel={t.charAt(0).toUpperCase() + t.slice(1)}
                   accessibilityState={{ checked: theme === t }}
                 >
-                  <Text style={styles.themeIcon} accessibilityHidden>
+                  <Text style={styles.themeIcon} importantForAccessibility='no-hide-descendants'>
                     {t === 'light' ? '☀️' : t === 'dark' ? '🌙' : '🔄'}
                   </Text>
                   <Text style={[styles.themeText, theme === t && styles.themeTextActive]}>
@@ -133,7 +133,7 @@ export default function WellnessScreen() {
               <Text style={styles.linkTitle}>View Full Profile</Text>
               <Text style={styles.linkSub}>Credentials, education, certifications</Text>
             </View>
-            <Text style={styles.linkChevron} accessibilityHidden>›</Text>
+            <Text style={styles.linkChevron} importantForAccessibility='no-hide-descendants'>›</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.linkCard}
@@ -146,7 +146,7 @@ export default function WellnessScreen() {
               <Text style={styles.linkTitle}>Settings</Text>
               <Text style={styles.linkSub}>Edit profile, booking & notifications</Text>
             </View>
-            <Text style={styles.linkChevron} accessibilityHidden>›</Text>
+            <Text style={styles.linkChevron} importantForAccessibility='no-hide-descendants'>›</Text>
           </TouchableOpacity>
         </View>
 

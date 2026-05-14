@@ -45,8 +45,8 @@ export function FormField({ label, error, hint, required, ...inputProps }: FormF
         }}
         accessibilityLabel={label}
         accessibilityHint={hint}
-        accessibilityRequired={required}
-        accessibilityInvalid={!!error}
+        
+        
       />
       {error ? (
         <Text style={styles.errorText} accessibilityRole="alert">{error}</Text>
