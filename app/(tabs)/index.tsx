@@ -174,25 +174,31 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {todayAppts.slice(0, 5).map((appt) => (
-            <TouchableOpacity
-              key={appt.id}
-              style={styles.apptRow}
-              activeOpacity={0.8}
-              onPress={() => router.push({ pathname: '/patient/[id]', params: { id: appt.id } })}
-              accessibilityRole="button"
-              accessibilityLabel={`${appt.name}, ${appt.type}, ${appt.time}`}
-            >
-              <View style={styles.tokenBadge}>
-                <Text style={styles.tokenText}>{appt.token}</Text>
-              </View>
-              <View style={styles.apptInfo}>
-                <Text style={styles.apptName}>{appt.name}</Text>
-                <Text style={styles.apptType}>{appt.type} • {appt.time}</Text>
-              </View>
-              <StatusBadge status={appt.status} compact />
-            </TouchableOpacity>
-          ))}
+            <FlatList
+            data={todayAppts.slice(0, 5)}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item: appt }) => (
+              <TouchableOpacity
+                style={styles.apptRow}
+                activeOpacity={0.8}
+                onPress={() => router.push({ pathname: '/patient/[id]', params: { id: appt.id } })}
+                accessibilityRole="button"
+                accessibilityLabel={`${appt.name}, ${appt.type}, ${appt.time}`}
+              >
+                <View style={styles.tokenBadge}>
+                  <Text style={styles.tokenText}>{appt.token}</Text>
+                </View>
+                <View style={styles.apptInfo}>
+                  <Text style={styles.apptName}>{appt.name}</Text>
+                  <Text style={styles.apptType}>{appt.type} • {appt.time}</Text>
+                </View>
+                <StatusBadge status={appt.status} compact />
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No appointments scheduled for today.</Text>
+            }
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -272,4 +278,7 @@ const styles = StyleSheet.create({
   apptInfo:   { flex: 1 },
   apptName:   { fontSize: FONT_MD, fontWeight: '600', color: GRAY_900 },
   apptType:   { fontSize: FONT_SM, color: GRAY_500, marginTop: 2 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACE_2XL, backgroundColor: PRIMARY_BG },
+  loadingText: { marginTop: SPACE_MD, fontSize: FONT_MD, color: GRAY_500 },
+  emptyText: { textAlign: 'center', color: GRAY_500, fontSize: FONT_SM, marginTop: SPACE_SM },
 });
