@@ -13,6 +13,8 @@ const client: AxiosInstance = axios.create({
   },
 });
 
+type RetryableRequest = AxiosRequestConfig & { _retry?: boolean };
+
 let isRefreshing = false;
 let refreshQueue: Array<{
   resolve: (value?: unknown) => void;
@@ -38,7 +40,7 @@ client.interceptors.request.use(async (config: AxiosRequestConfig) => {
 client.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as RetryableRequest | undefined;
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -51,7 +53,11 @@ client.interceptors.response.use(
       isRefreshing = true;
       try {
         const data = await refreshSession(authStore.getState().refreshToken);
-        authStore.getState().setSession(data);
+        authStore.getState().setSession({
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          user: { ...(authStore.getState().user ?? { id: '', email: '', name: '', role: 'doctor', token: data.accessToken }), token: data.accessToken },
+        });
         processQueue(null, data.accessToken);
         return client(originalRequest);
       } catch (refreshError) {

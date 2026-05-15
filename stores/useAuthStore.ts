@@ -39,7 +39,7 @@ export const authStore = create<AuthState>((set) => ({
       }
 
       set({ accessToken, refreshToken, isAuthenticated: true });
-      const user = await fetchCurrentUser();
+      const user = await fetchCurrentUser(accessToken);
       set({ user, isAuthenticated: true });
     } catch (error) {
       await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
@@ -72,7 +72,8 @@ export const authStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await revokeTokens();
+      const accessToken = authStore.getState().accessToken;
+      await revokeTokens(accessToken ?? undefined);
     } catch {
       // ignore logout errors, still clear local state
     }

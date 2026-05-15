@@ -23,6 +23,7 @@ import {
 } from '@/constants/theme';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -49,8 +50,18 @@ export default function LoginScreen() {
 
     if (!result.success) {
       setServerError(result.error ?? 'Login failed. Please try again.');
+      return;
     }
-    // On success the AuthGuard in _layout.tsx automatically redirects.
+
+    router.replace('/(tabs)');
+  };
+
+  const handleForgotPassword = () => {
+    Alert.alert(
+      'Reset password',
+      'If you forgot your password, please contact your administrator or use the password recovery workflow in your clinic portal.',
+      [{ text: 'OK', style: 'default' }]
+    );
   };
 
   return (
@@ -118,6 +129,7 @@ export default function LoginScreen() {
 
             <TouchableOpacity
               style={styles.forgotLink}
+              onPress={handleForgotPassword}
               accessibilityRole="button"
               accessibilityLabel="Forgot password"
             >

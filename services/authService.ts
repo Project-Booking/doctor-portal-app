@@ -66,18 +66,24 @@ export async function refreshSession(refreshToken: string | null): Promise<{ acc
   return { accessToken: parsed.accessToken, refreshToken: parsed.refreshToken };
 }
 
-export async function fetchCurrentUser(): Promise<AuthUser> {
-  const response = await client.get('/auth/me');
+export async function fetchCurrentUser(accessToken: string): Promise<AuthUser> {
+  const response = await client.get('/auth/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
   const parsed = MeResponseSchema.parse(response.data);
   return {
     id: parsed.id,
     email: parsed.email,
     name: parsed.name,
     role: parsed.role,
-    token: '',
+    token: accessToken,
   };
 }
 
-export async function revokeTokens(): Promise<void> {
-  await client.post('/auth/logout');
+export async function revokeTokens(accessToken?: string): Promise<void> {
+  await client.post('/auth/logout', undefined, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
 }
