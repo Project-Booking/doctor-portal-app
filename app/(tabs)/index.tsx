@@ -7,6 +7,7 @@
 import React, { useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Image,
+  FlatList, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -34,7 +35,7 @@ const quickActions = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { doctor, appointments, sessions } = useApp();
+  const { doctor, appointments, sessions, isLoading } = useApp();
 
   const greeting = getGreeting();
   const todayLabel = getTodayLabel();
@@ -53,6 +54,17 @@ export default function HomeScreen() {
   }), [doctor, todayAppts]);
 
   const activeSession = sessions.find((s) => s.available);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={PRIMARY} />
+          <Text style={styles.loadingText}>Loading clinic dashboard…</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
