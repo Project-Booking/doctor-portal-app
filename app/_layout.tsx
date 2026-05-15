@@ -10,6 +10,7 @@
 
 import React, { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
@@ -20,6 +21,22 @@ import { AppProvider } from '@/contexts/AppContext';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PRIMARY } from '@/constants/theme';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 1000 * 60,
+      cacheTime: 1000 * 60 * 5,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+      useErrorBoundary: true,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -42,7 +59,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isInitializing, segments]);
+  }, [isAuthenticated, isInitializing, segments, router]);
 
   if (isInitializing) {
     return (
@@ -62,22 +79,24 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AppProvider>
-          <ToastProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <AuthGuard>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(auth)"  options={{ headerShown: false }} />
-                  <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
-                  <Stack.Screen name="patient" options={{ headerShown: false, presentation: 'card' }} />
-                </Stack>
-              </AuthGuard>
-              <StatusBar style="auto" />
-            </ThemeProvider>
-          </ToastProvider>
-        </AppProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppProvider>
+            <ToastProvider>
+              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <AuthGuard>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="patient" options={{ headerShown: false, presentation: 'card' }} />
+                  </Stack>
+                </AuthGuard>
+                <StatusBar style="auto" />
+              </ThemeProvider>
+            </ToastProvider>
+          </AppProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
